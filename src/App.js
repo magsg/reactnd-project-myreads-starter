@@ -1,142 +1,203 @@
 import React from 'react'
-// import * as BooksAPI from './BooksAPI'
+import {Link} from 'react-router-dom'
+import {Route} from 'react-router-dom'
 import './App.css'
 import Books from './Books'
+import Search from './SearchPage'
 import * as BooksAPI from './BooksAPI'
 
 
 
 class BooksApp extends React.Component {
-  state = {
-    books: [],
-    current: [],
-    want: [],
-    read: [],
-    // shelf: '',
+    state = {
+      books: [],
+      current: [],
+      want: [],
+      read: [],
+    }
+
+    //imports books from the server and assigns a shelf
+
+    componentDidMount() {
+      BooksAPI.getAll().then((books) => {
+        this.setState({
+          books
+        })
+        this.setState((state) => ({
+          current: state.books.filter((b) => b.shelf === "currentlyReading")
+        }))
+        this.setState((state) => ({
+          want: state.books.filter((b) => b.shelf === "wantToRead")
+        }))
+        this.setState((state) => ({
+          read: state.books.filter((b) => b.shelf === "read")
+        }))
+      })
+    }
+
+    //moves books between shelves
+
+    updateBook = (book, shelf) => {
+
+      // Currently Reading shelf
+
+      let oldState = book.shelf
+      console.log("OLD1 " + oldState)
+
+      if (shelf === "currentlyReading" && oldState !== "currentlyReading") {
+
+        console.log("dupa " + book)
+        console.log("dupa2 " + shelf)
+        this.state.books.filter((b) => b.id === book.id).map(bk => {
+          bk.shelf = shelf;
+          this.setState((state) => ({
+            current: [...this.state.current, bk]
+          }))
+        })
+
+        if (oldState === "wantToRead") {
+
+          this.setState((state) => ({
+            want: state.want.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        if (oldState === "read") {
+          this.setState((state) => ({
+            read: state.read.filter((b) => b.id !== book.id)
+          }))
+        }
+        console.log("OLD " + oldState)
+      }
+
+      //  Want To Read shelf
+
+      if (shelf === "wantToRead" && oldState !== "wantToRead") {
 
 
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    showSearchPage: false
-  }
+        this.state.books.filter((b) => b.id === book.id).map(bk => {
+          bk.shelf = shelf;
+          this.setState((state) => ({
+            want: [...this.state.want, bk]
+          }))
+        })
+
+        if (oldState === "currentlyReading") {
+          this.setState((state) => ({
+            current: state.current.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        if (oldState === "read") {
+          this.setState((state) => ({
+            read: state.read.filter((b) => b.id !== book.id)
+          }))
+        }
+        console.log("OLD " + oldState)
+      }
+
+      //  Read shelf
+      if (shelf === "read" && oldState !== "read") {
 
 
+        this.state.books.filter((b) => b.id === book.id).map(bk => {
+          bk.shelf = shelf;
+          this.setState((state) => ({
+            read: [...this.state.read, bk]
+          }))
+        })
 
-  componentDidMount() {
-    BooksAPI.getAll().then((books)=> {
-      this.setState({books})
+        if (oldState === "currentlyReading") {
+          this.setState((state) => ({
+            current: state.current.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        if (oldState === "wantToRead") {
+          this.setState((state) => ({
+            want: state.want.filter((b) => b.id !== book.id)
+          }))
+        }
+        console.log("OLD " + oldState)
+      }
+
+      // no shelf ("none")
+
+      if (shelf === "none" && oldState !== "none") {
+        this.state.books.filter((b) => b.id === book.id).map(bk => {
+          bk.shelf = shelf;
+          this.setState((state) => ({
+            read: state.read.filter((b) => b.id !== book.id)
+          }))
+        })
+
+        if (oldState === "currentlyReading") {
+          this.setState((state) => ({
+            current: state.current.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        if (oldState === "wantToRead") {
+          this.setState((state) => ({
+            want: state.want.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        if (oldState === "read") {
+          this.setState((state) => ({
+            want: state.want.filter((b) => b.id !== book.id)
+          }))
+        }
+
+        console.log("OLD " + oldState)
+      }
+
+      BooksAPI.update(book, shelf);
+    }
+
+    //returns shelf value
+
+
+    handleChange1 = (event) => {
+      let st = event.target.value
+      console.log(st);
+      return (st);
+
+    }
+
+    updateMainPage = (book, shelf) => {
       this.setState((state) => ({
-        current: state.books.filter((b) => b.shelf === "currentlyReading")
+        books: [...this.state.books, book]
       }))
-      this.setState((state) => ({
-        want: state.books.filter((b) => b.shelf === "wantToRead")
-      }))
-      this.setState((state) => ({
-        read: state.books.filter((b) => b.shelf === "read")
-      }))
-    })
+      this.updateBook(book, shelf);
 
-  }
+    }
 
+    render() {
 
+        return (
 
-updateBook = (book, shelf) => {
+          <div className="app" >
 
-  // this.setState((state) => ({
-  //   books: this.state.books, {book: shelf}
-  // }))
-  if(shelf === "currentlyReading") {
-  let nb = this.state.current.concat(book)
-  this.setState({current: nb})
+            <Route path = '/search'
+              render={() => (<Search update={this.updateMainPage} handleChange={this.handleChange1} searchCurrent={this.state.current} searchWant={this.state.want} searchRead={this.state.read}/>)}/>
 
-  
-  this.setState((state) => ({
-    current: state.books.filter((b) => b.id === book.id && b.shelf === "currentlyReading")
-  }))
-  this.setState((state) => ({
-    want: state.books.filter((b) => b.id !== book.id && b.shelf === "wantToRead")
-  }))
-  this.setState((state) => ({
-    read: state.books.filter((b) => b.id !== book.id && b.shelf === "read")
-  }))
-}
-  // this.setState((state) => ({
-  //   current: state.current.filter((b) => b.shelf !== book.shelf)
-  // }))
-  // this.setState((state) => ({
-  //   want: state.books.filter((b) => b.shelf === "wantToRead")
-  // }))
-  // this.setState((state) => ({
-  //   read: state.books.filter((b) => b.shelf === book.shelf)
-  // }))
+            <Route exact path = '/'
+              render = {() => (
+                <div className="list-books">
+                  <div className = "list-books-title">
+                    <h1> MyReads </h1>
+                  </div>
 
-  BooksAPI.update(book, shelf)
-
-
-  // if (shelf === "currentlyReading") {
-  // this.setState((state) => ({
-  //   read: state.read.filter((b) => b.id !== book.id)
-  // }))
-  // }
-  //
-  // console.log(book.shelf)
-}
-
-
-
-  render() {
-
-    return (
-
-      <div className="app">
-
-        {this.state.showSearchPage ? (
-          <div className="search-books">
-            <div className="search-books-bar">
-              <a className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</a>
-              <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author"/>
-
-              </div>
+                  <Books stateChange={this.updateBook} current={this.state.current} want={this.state.want} read={this.state.read} handleChange={this.handleChange1}/>
+                    <div className="open-search">
+                      <Link to = '/search'> Add a book </Link>
+                    </div>
+                </div>
+                )}/>
             </div>
-            <div className="search-books-results">
-              <ol className="books-grid"></ol>
-            </div>
-          </div>
-        ) : (
-          <div className="list-books">
-            <div className="list-books-title">
-              <h1>MyReads</h1>
-            </div>
+            )
+          }
+        }
 
-            <Books
-            stateChange={this.updateBook}
-            current={this.state.current}
-            want={this.state.want}
-            read={this.state.read}
-            />
-
-
-            <div className="open-search">
-              <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-}
-
-export default BooksApp
+        export default BooksApp
