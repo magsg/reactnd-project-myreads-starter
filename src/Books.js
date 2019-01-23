@@ -1,8 +1,7 @@
-import React, {Component} from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
-import * as BooksAPI from './BooksAPI'
 
-class Books extends Component {
+class Books extends React.Component {
   static propTypes = {
     stateChange: PropTypes.func.isRequired
   }
@@ -21,11 +20,12 @@ class Books extends Component {
                 <li key={book.id}>
                   <div className="book">
                     <div className="book-top">
-                      <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
+                      <div className="book-cover" style={{ width: 128, height: 193,
+                       backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
                       </div>
                       <div className="book-shelf-changer">
                         <select onChange={(e)=> {stateChange(book, handleChange(e))}}
-                        defaultValue={"currentlyReadng"}>
+                        value={"currentlyReading"}>
                           <option value="move" disabled>Move to...</option>
                           <option value="currentlyReading">Currently Reading</option>
                           <option value="wantToRead">Want to Read</option>
@@ -47,7 +47,8 @@ class Books extends Component {
                     <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
-                          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
+                          <div className="book-cover" style={{ width: 128, height: 193,
+                           backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
                           </div>
                           <div className="book-shelf-changer">
                             <select onChange={(e)=> {stateChange(book, handleChange(e))}}
@@ -75,7 +76,8 @@ class Books extends Component {
                     <li key={book.id}>
                       <div className="book">
                         <div className="book-top">
-                          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
+                          <div className="book-cover" style={{ width: 128, height: 193,
+                           backgroundImage: `url( "${book.imageLinks ? book.imageLinks.thumbnail : ''}")`}}>
                           </div>
                           <div className="book-shelf-changer">
                             <select onChange={(e)=> {stateChange(book, handleChange(e))}}

@@ -21,7 +21,7 @@ class BooksApp extends React.Component {
     componentDidMount() {
       BooksAPI.getAll().then((books) => {
         this.setState({
-          books
+          books: books
         })
         this.setState((state) => ({
           current: state.books.filter((b) => b.shelf === "currentlyReading")
@@ -42,12 +42,8 @@ class BooksApp extends React.Component {
       // Currently Reading shelf
 
       let oldState = book.shelf
-      console.log("OLD1 " + oldState)
 
       if (shelf === "currentlyReading" && oldState !== "currentlyReading") {
-
-        console.log("dupa " + book)
-        console.log("dupa2 " + shelf)
         this.state.books.filter((b) => b.id === book.id).map(bk => {
           bk.shelf = shelf;
           this.setState((state) => ({
@@ -56,7 +52,6 @@ class BooksApp extends React.Component {
         })
 
         if (oldState === "wantToRead") {
-
           this.setState((state) => ({
             want: state.want.filter((b) => b.id !== book.id)
           }))
@@ -67,14 +62,11 @@ class BooksApp extends React.Component {
             read: state.read.filter((b) => b.id !== book.id)
           }))
         }
-        console.log("OLD " + oldState)
       }
 
       //  Want To Read shelf
 
       if (shelf === "wantToRead" && oldState !== "wantToRead") {
-
-
         this.state.books.filter((b) => b.id === book.id).map(bk => {
           bk.shelf = shelf;
           this.setState((state) => ({
@@ -93,13 +85,10 @@ class BooksApp extends React.Component {
             read: state.read.filter((b) => b.id !== book.id)
           }))
         }
-        console.log("OLD " + oldState)
       }
 
       //  Read shelf
       if (shelf === "read" && oldState !== "read") {
-
-
         this.state.books.filter((b) => b.id === book.id).map(bk => {
           bk.shelf = shelf;
           this.setState((state) => ({
@@ -118,7 +107,6 @@ class BooksApp extends React.Component {
             want: state.want.filter((b) => b.id !== book.id)
           }))
         }
-        console.log("OLD " + oldState)
       }
 
       // no shelf ("none")
@@ -148,8 +136,6 @@ class BooksApp extends React.Component {
             want: state.want.filter((b) => b.id !== book.id)
           }))
         }
-
-        console.log("OLD " + oldState)
       }
 
       BooksAPI.update(book, shelf);
@@ -157,20 +143,31 @@ class BooksApp extends React.Component {
 
     //returns shelf value
 
-
-    handleChange1 = (event) => {
+    handleChange = (event) => {
       let st = event.target.value
-      console.log(st);
       return (st);
-
     }
 
-    updateMainPage = (book, shelf) => {
-      this.setState((state) => ({
-        books: [...this.state.books, book]
-      }))
+	//moves books from the search page to the main page
+
+ 	updateMainPage = (book, shelf) => {
+
       this.updateBook(book, shelf);
 
+      BooksAPI.getAll().then((books) => {
+       this.setState({
+          books: books
+        })
+        this.setState((state) => ({
+          current: state.books.filter((b) => b.shelf === "currentlyReading")
+        }))
+        this.setState((state) => ({
+          want: state.books.filter((b) => b.shelf === "wantToRead")
+        }))
+        this.setState((state) => ({
+          read: state.books.filter((b) => b.shelf === "read")
+        }))
+      })
     }
 
     render() {
@@ -179,25 +176,29 @@ class BooksApp extends React.Component {
 
           <div className="app" >
 
-            <Route path = '/search'
-              render={() => (<Search update={this.updateMainPage} handleChange={this.handleChange1} searchCurrent={this.state.current} searchWant={this.state.want} searchRead={this.state.read}/>)}/>
+            <Route path='/search'
+              render={() => (
+      			<Search update={this.updateMainPage} handleChange={this.handleChange}
+				searchCurrent={this.state.current} searchWant={this.state.want} searchRead=									{this.state.read}/>
+			)}/>
 
-            <Route exact path = '/'
-              render = {() => (
+            <Route exact path='/'
+              render={() => (
                 <div className="list-books">
-                  <div className = "list-books-title">
+                  <div className="list-books-title">
                     <h1> MyReads </h1>
                   </div>
 
-                  <Books stateChange={this.updateBook} current={this.state.current} want={this.state.want} read={this.state.read} handleChange={this.handleChange1}/>
+                  <Books stateChange={this.updateBook} current={this.state.current} want={this.state.want}
+				   read={this.state.read} handleChange={this.handleChange}/>
                     <div className="open-search">
-                      <Link to = '/search'> Add a book </Link>
+                      <Link to='/search'> Add a book </Link>
                     </div>
                 </div>
-                )}/>
-            </div>
-            )
-          }
-        }
+              )}/>
+           </div>
+           )
+         }
+       }
 
-        export default BooksApp
+export default BooksApp
